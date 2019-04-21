@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+import os
+import glob
+
+class rule():
+    def __init__(self, regexp, target, allow_directories=True):
+        self.regexp = regexp
+        self.target = target
+        self.allow_directories = allow_directories
+
+def handle_rule(rule):
+    for item in glob.iglob(rule.regexp):
+        if not (rule.allow_directories or os.path.isfile(item)):
+            continue
+        if not os.path.exists(rule.target):
+            os.makedirs(rule.target)
+        _, file_name = os.path.split(item)
+        os.rename(item, os.path.join(rule.target, file_name))
+
+if __name__ == '__main__':
+    rules = [ rule('*.pdf', 'Documents')
+            , rule('*.txt', 'Documents/Text')
+            , rule('*.opus', 'Music')
+            , rule('*', 'Misc', allow_directories=False)]
+    for rule in rules:
+        handle_rule(rule)
